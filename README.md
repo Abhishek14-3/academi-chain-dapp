@@ -1,73 +1,248 @@
-# Welcome to your Lovable project
+# AcademiChain 🎓⛓️
 
-## Project info
+A full-stack blockchain credential management system for academic institutions. Issue, verify, and manage academic credentials using Ethereum blockchain and IPFS storage.
 
-**URL**: https://lovable.dev/projects/548614fe-56f1-45fe-b937-1596447d490b
+## Features
 
-## How can I edit this code?
+✨ **Blockchain Security**: Credentials stored immutably on Ethereum  
+📁 **IPFS Storage**: Documents stored on distributed IPFS network via Pinata  
+🔍 **Instant Verification**: Verify credentials in seconds  
+📊 **Timeline View**: Track all issued credentials  
+🎨 **Modern UI**: Beautiful, responsive interface built with React + TailwindCSS  
+🔐 **MetaMask Integration**: Seamless wallet connection
 
-There are several ways of editing your application.
+## Tech Stack
 
-**Use Lovable**
+### Frontend
+- React 18 + TypeScript
+- Vite
+- TailwindCSS
+- ethers.js
+- shadcn/ui components
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/548614fe-56f1-45fe-b937-1596447d490b) and start prompting.
+### Backend
+- Node.js + Express
+- ethers.js (blockchain interaction)
+- Pinata SDK (IPFS)
+- CORS enabled
 
-Changes made via Lovable will be committed automatically to this repo.
+## Project Structure
 
-**Use your preferred IDE**
+```
+academichain/
+├── src/                    # React frontend
+│   ├── components/         # UI components
+│   ├── pages/             # Page components
+│   └── App.tsx            # Main app with wallet integration
+├── backend/               # Node.js backend
+│   ├── index.js          # Express server
+│   ├── package.json      # Backend dependencies
+│   └── .env.example      # Environment template
+└── README.md
+```
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## Setup Instructions
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### Prerequisites
 
-Follow these steps:
+- Node.js 18+ installed
+- MetaMask browser extension
+- Pinata account (free tier works)
+- Deployed CredentialRegistry smart contract
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### Frontend Setup
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+1. **Install dependencies:**
+```bash
+npm install
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+2. **Configure backend URL:**
+Create `.env` in root:
+```env
+VITE_BACKEND_URL=http://localhost:3001
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+3. **Run development server:**
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Frontend will be available at `http://localhost:8080`
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Backend Setup
 
-**Use GitHub Codespaces**
+1. **Navigate to backend:**
+```bash
+cd backend
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+2. **Install dependencies:**
+```bash
+npm install
+```
 
-## What technologies are used for this project?
+3. **Configure environment:**
+```bash
+cp .env.example .env
+```
 
-This project is built with:
+Edit `.env` with your credentials:
+```env
+PRIVATE_KEY=your_wallet_private_key
+RPC_URL=https://rpc-mumbai.maticvigil.com
+CONTRACT_ADDRESS=your_deployed_contract_address
+PINATA_KEY=your_pinata_api_key
+PINATA_SECRET=your_pinata_secret
+PORT=3001
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+4. **Run backend:**
+```bash
+npm start
+```
 
-## How can I deploy this project?
+Backend API will be available at `http://localhost:3001`
 
-Simply open [Lovable](https://lovable.dev/projects/548614fe-56f1-45fe-b937-1596447d490b) and click on Share -> Publish.
+## Getting Your Credentials
 
-## Can I connect a custom domain to my Lovable project?
+### Pinata (IPFS)
+1. Sign up at [pinata.cloud](https://pinata.cloud)
+2. Navigate to API Keys
+3. Create new key with `pinFileToIPFS` permission
+4. Copy API Key and Secret to `.env`
 
-Yes, you can!
+### Ethereum Wallet
+1. Install MetaMask
+2. Create/import wallet
+3. Get test tokens from Mumbai faucet
+4. Export private key (Settings → Security → Show Private Key)
+5. Add to backend `.env`
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+⚠️ **NEVER share or commit your private key!**
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+## Smart Contract
+
+The system expects a deployed `CredentialRegistry` contract with:
+
+```solidity
+function issueCredential(address student, string memory cid) 
+    external returns (uint256);
+
+function getCredential(uint256 id) 
+    external view returns (
+        address studentAddress,
+        string memory cid,
+        uint256 issuedAt,
+        bool revoked
+    );
+```
+
+**Note:** Smart contract code is NOT included. Deploy your own contract and update `CONTRACT_ADDRESS` in `.env`.
+
+## API Endpoints
+
+### POST /upload
+Upload file to IPFS
+```bash
+curl -X POST http://localhost:3001/upload \
+  -F "file=@certificate.pdf"
+```
+
+### POST /issue
+Issue credential on blockchain
+```bash
+curl -X POST http://localhost:3001/issue \
+  -H "Content-Type: application/json" \
+  -d '{
+    "studentAddress": "0x...",
+    "cid": "QmXxx..."
+  }'
+```
+
+### GET /credential/:id
+Get credential by ID
+```bash
+curl http://localhost:3001/credential/1
+```
+
+## Testing with Postman
+
+Import `backend/postman_collection.json` for ready-to-use API tests.
+
+## Usage Flow
+
+1. **Connect Wallet**: Click "Connect Wallet" in navbar
+2. **Issue Credential**:
+   - Navigate to "Issue Credential"
+   - Enter student wallet address
+   - Upload credential document
+   - Submit and wait for blockchain confirmation
+3. **Verify Credential**:
+   - Navigate to "Verify"
+   - Enter credential ID
+   - View credential details and IPFS document
+4. **View Timeline**:
+   - Navigate to "Timeline"
+   - See all issued credentials chronologically
+
+## Development
+
+### Frontend Development
+```bash
+npm run dev
+```
+
+### Backend Development (with auto-reload)
+```bash
+cd backend
+npm run dev
+```
+
+### Build for Production
+```bash
+npm run build
+```
+
+## Security Notes
+
+⚠️ **Important:**
+- Never commit `.env` files
+- Keep private keys secure
+- Use environment variables for all secrets
+- In production, add rate limiting and authentication
+- Validate all user inputs
+- Use HTTPS in production
+
+## Troubleshooting
+
+**"MetaMask Not Found"**
+- Install MetaMask browser extension
+- Refresh the page
+
+**Backend connection fails**
+- Verify backend is running on port 3001
+- Check CORS is enabled
+- Verify `VITE_BACKEND_URL` is correct
+
+**Transaction fails**
+- Ensure wallet has sufficient funds for gas
+- Verify contract address is correct
+- Check network connectivity
+
+**IPFS upload fails**
+- Verify Pinata credentials
+- Check file size (max 10MB recommended)
+- Ensure Pinata account is active
+
+## License
+
+MIT
+
+## Team
+
+Built by the AcademiChain Team
+
+---
+
+**Need Help?** Check the backend README for detailed API documentation.
